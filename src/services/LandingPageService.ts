@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 
 const GetProjectList = async () => {
     try {
-        const response = await fetch('http://localhost:5190/api/Project', {
+        const response = await fetch('http://localhost:8080/api/Project', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -23,7 +23,7 @@ const GetProjectList = async () => {
 
 const GetProject = async (id: string) => {
     try {
-        const response = await fetch(`http://localhost:5190/api/Project/${id}`, {
+        const response = await fetch(`http://localhost:8080/api/Project/${id}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',

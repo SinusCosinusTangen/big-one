@@ -1,9 +1,8 @@
 import React, {useEffect, useState} from "react";
-import '../output.css'
-import './LandingPage.css'
-import bg from './img/bg-img.jpeg'
-import { GetProjectList } from "../services/LandingPageService";
-import ProjectDetailCard from "../components/ProjectDetailCard";
+import '../../output.css'
+import bg from '../../asset/image/bg-img.jpeg'
+import { GetProjectList } from "../../services/LandingPageService";
+import ProjectDetailCard from "../../components/ProjectDetailCard";
 
 const LandingPage = () => {
 
@@ -15,7 +14,7 @@ const LandingPage = () => {
 
     const [projects, setProjects] = useState([]);
     const [projectId, setProjectId] = useState("");
-    const [isProjectDetailHidden, setIsProjectDetailHidden] = useState(false)
+    const [isProjectDetailHidden, setIsProjectDetailHidden] = useState(true)
 
     useEffect(() => {
         const fetchProjects = async () => {
@@ -54,7 +53,7 @@ const LandingPage = () => {
                 </div>
                 <div className="grid grid-cols-3 gap-8 px-40 pb-10">
                     {projects.map((project) => (
-                        <button onClick={() => {setProjectId(project['id']); isProjectDetailHidden ?  setIsProjectDetailHidden(false) : setIsProjectDetailHidden(true)}}>
+                        <button key={project['id']} onClick={() => {setProjectId(project['id']); isProjectDetailHidden ?  setIsProjectDetailHidden(false) : setIsProjectDetailHidden(true)}}>
                             <div className="h-52 text-center text-white rounded-lg bg-slate-700/25 hover:bg-gradient-to-r from-slate-500/75 to-slate-800/75 p-2 border-2">
                                 <h1 className="text-4xl font-semibold mb-4">{project['projectName']}</h1>
                                 <h1 className="text-2xl font-sans">{project['projectDescriptionShort']}</h1>

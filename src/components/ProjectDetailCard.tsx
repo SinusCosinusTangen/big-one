@@ -36,14 +36,14 @@ const ProjectDetailCard: React.FC<ProjectCardProps> = ({ id }) => {
         <div className="h-fit overlay">
             <div className="card">
                 <h2 className="text-3xl font-semibold mb-4">{project?.projectName}</h2>
-                <p className="text-2xl font-sans">{project?.projectDescriptionLong}</p>
+                <p className="text-2xl font-sans text-start">{project?.projectDescriptionLong}</p>
                 <hr className="border-2 rounded h-2 bg-slate-950 mt-4"/>
                 <p className="text-1xl font-sans font-bold mb-2">Technology Stack</p>
-                <p className="text-1xl font-sans mb-4">
+                <div className="text-1xl font-sans mb-4 flex flex-wrap gap-1">
                 {techStacks.map((techStack) => (
-                    <><span className="bg-white-0 border-solid border-2 border-black rounded-full px-4 text-center font-semibold" key={techStack.id}>{techStack.name}</span><span> </span></>
+                    <><span className="bg-white-0 border-solid border-2 border-black rounded-full mb-1 px-2 py-1 text-center font-semibold" key={techStack.id}>{techStack.name}</span><span> </span></>
                 ))}
-                </p>
+                </div>
                 <a href={project?.projectLink} target="_blank" className="text-blue-500 hover:font-semibold">View Project</a>
             </div>
         </div>
