@@ -5,6 +5,7 @@ import { GetProjectList } from "../../services/LandingPageService";
 import ProjectDetailCard from "../../components/ProjectDetailCard";
 import LoginForm from "../../components/LoginForm";
 import SignupForm from "../../components/SignupForm";
+import { GetPublicKey } from "../../services/AuthService";
 
 const AuthPage = () => {
 
@@ -16,7 +17,7 @@ const AuthPage = () => {
     const [authState, setAuthState] = useState('login');
 
     useEffect(() => {
-        
+        GetPublicKey();
     }, []);
 
     var loginButtonClass = "border-t-8 border-slate-200 w-1/2 py-4 bg-slate-200 rounded-tl text-slate-500 text-xl"
