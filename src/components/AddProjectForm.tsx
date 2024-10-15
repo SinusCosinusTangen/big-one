@@ -1,13 +1,13 @@
 import { useState } from 'react';
-import '../output.css';
 import { AddProject } from '../services/LandingPageService';
+import { TechStackRequest } from '../models/TechStack';
 
 const AddProjectForm = () => {
     const [projectName, setProjectName] = useState("");
     const [projectDescription, setProjectDescription] = useState("");
-    const [techStack, setTechStack] = useState("");
+    const [techStack, setTechStack] = useState<TechStackRequest>({ name: "", type: "" });
     const [projectLink, setProjectLink] = useState("");
-    const [techStacks, setTechStacks] = useState<string[]>([]);
+    const [techStacks, setTechStacks] = useState<TechStackRequest[]>([]);
 
     const inputClass = `mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400
                         focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500
@@ -16,16 +16,18 @@ const AddProjectForm = () => {
                         focus:invalid:border-pink-500 focus:invalid:ring-pink-500`;
 
     const handleTechStacks = (e: React.KeyboardEvent<HTMLInputElement> | React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault(); // Prevent form submission on Enter or default behavior
+        e.preventDefault();
 
-        const trimmedTechStack = techStack.trim();
-        if (trimmedTechStack && !techStacks.find(ts => ts.trim().toLowerCase() === trimmedTechStack.toLowerCase())) {
-            setTechStacks((prevStacks) => [...prevStacks, trimmedTechStack]);
+        const trimmedTechStack = techStack.name;
+        if (trimmedTechStack && !techStacks.find(ts => ts.name.trim().toLowerCase() === trimmedTechStack.toLowerCase())) {
+            setTechStacks((prevStacks: TechStackRequest[]) => [...prevStacks, techStack]);
         }
+
+        setTechStack({ name: "", type: "" });
     };
 
     const removeTechStack = (techStackToRemove: string) => {
-        setTechStacks((prevStacks) => prevStacks.filter(ts => ts !== techStackToRemove));
+        setTechStacks((prevStacks) => prevStacks.filter(ts => ts.name !== techStackToRemove));
     };
 
     const addProject = async () => {
@@ -34,8 +36,8 @@ const AddProjectForm = () => {
 
     return (
         <form className="max-w-full md:max-w-lg mx-auto p-4 md:p-6"
-              onSubmit={(e) => handleTechStacks(e)} // Handles form submission with Enter on mobile too
-              onKeyDown={(e) => {if (e.key == 'Enter') e.preventDefault()}}
+            onSubmit={(e) => handleTechStacks(e)}
+            onKeyDown={(e) => { if (e.key == 'Enter') e.preventDefault() }}
         >
             <p className="mt-2 text-lg">Project Name</p>
             <input value={projectName} type="text" className={inputClass} onChange={(e) => setProjectName(e.target.value)} required />
@@ -46,25 +48,25 @@ const AddProjectForm = () => {
             <p className="mt-2 text-lg">Tech Stacks</p>
             <div className="relative flex items-center mb-2">
                 <input
-                    value={techStack}
+                    value={techStack.name}
                     type="text"
                     className={inputClass}
-                    onChange={(e) => setTechStack(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleTechStacks(e)} // Handles Enter key for adding tech stack
+                    onChange={(e) => setTechStack({ name: e.target.value, type: "Programming Language" })}
+                    onKeyDown={(e) => e.key === 'Enter' && handleTechStacks(e)}
                 />
             </div>
             <div className="text-sm font-sans mb-4 flex flex-wrap gap-1 max-h-32 overflow-auto">
                 {techStacks.map((stack) => (
                     <span
                         className="relative flex items-center bg-gray-200 text-gray-800 border-solid border-2 border-black rounded-full mb-1 pl-2 pr-1 py-1 text-center font-semibold"
-                        key={stack}
+                        key={stack.name}
                     >
-                        <span className="flex-1 text-left">{stack}</span>
+                        <span className="flex-1 text-left">{stack.name}</span>
                         <button
-                            onClick={() => removeTechStack(stack)}
+                            onClick={() => removeTechStack(stack.name)}
                             className="text-base text-gray-600 hover:text-red-500 hover:font-bold ml-1"
                         >
-                            &times; {/* Close icon */}
+                            &times;
                         </button>
                     </span>
                 ))}

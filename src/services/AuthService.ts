@@ -1,13 +1,4 @@
-import { redirect } from "react-router-dom";
-
-const API_URL = process.env.REACT_APP_PROJECT1_API_URL + '/Auth';
-
-// TODO: change to Redis
-interface SessionManager {
-    [username: string]: string; // Key: username, Value: token
-}
-
-const sessionManager: SessionManager = {};
+const API_URL = process.env.REACT_APP_MIDDLEWARE_API_URL + '/Auth';
 
 const GetPublicKey = async () => {
     try {
@@ -65,7 +56,7 @@ const RegisterUser = async (email: string, username: string, password: string, l
     }
 };
 
-const Login = async (username: string, email: string, password: string, loginMethod: string) => {
+const Login = async (usernameEmail: string, password: string, loginMethod: string) => {
     try {
         const encryptedPassword = await encryptPassword(password);
         if (!encryptedPassword) {
@@ -73,8 +64,7 @@ const Login = async (username: string, email: string, password: string, loginMet
         }
 
         const request = {
-            email,
-            username,
+            usernameEmail,
             password: encryptedPassword,
             loginMethod
         };
@@ -93,11 +83,13 @@ const Login = async (username: string, email: string, password: string, loginMet
 
         const jsonResponse = await response.json();
         var token = jsonResponse.data["token"];
-        sessionStorage.setItem("Token", token);
-        sessionStorage.setItem("Username", username);
-        sessionManager[username] = token;
+        var username = jsonResponse.data["username"]
+        localStorage.setItem("Token", token);
+        localStorage.setItem("Username", username);
 
-        console.log(sessionManager)
+        if (token) {
+            window.location.href = "/";
+        }
 
         return jsonResponse.data;
     } catch (error) {
@@ -106,15 +98,65 @@ const Login = async (username: string, email: string, password: string, loginMet
     }
 }
 
-const ValidateUserToken = (token: string | null, username: string | null) => {
-    return true;
-    // if (token != null && username != null) {
-    //     if (sessionManager[username] == token) {
-    //         return true;
-    //     }
-    // }   
+const ValidateUserToken = async (token: string | null, username: string | null) => {
+    try {
+        const request = {
+            username,
+            token
+        };
 
-    // return false;
+        const response = await fetch(`${API_URL}/validate`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(request),
+        });
+
+        if (!response.ok) {
+            // Do nothing
+        }
+
+        const jsonResponse = await response.json();
+        var newToken = jsonResponse.data["token"];
+
+        if (username && newToken !== "EXPIRED") {
+            localStorage.setItem("Token", newToken);
+            localStorage.setItem("Username", username);
+
+            return jsonResponse.data["role"];
+        }
+
+        return "";
+    } catch (error) {
+        return "";
+    }
+}
+
+const Logout = async (token: string | null, username: string | null) => {
+    const request = {
+        username,
+        token
+    };
+
+    const response = await fetch(`${API_URL}/logout`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(request),
+    });
+
+    const jsonResponse = await response.json();
+
+    console.log(jsonResponse);
+
+    if (jsonResponse["data"] === "LOGOUT") {
+        localStorage.removeItem("Token");
+        localStorage.removeItem("Username");
+    }
+
+    window.location.href = "/";
 }
 
 const pemToArrayBuffer = (pem: string): ArrayBuffer => {
@@ -126,7 +168,7 @@ const pemToArrayBuffer = (pem: string): ArrayBuffer => {
     const binaryString = window.atob(b64);
     const len = binaryString.length;
     const bytes = new Uint8Array(len);
-    
+
     for (let i = 0; i < len; i++) {
         bytes[i] = binaryString.charCodeAt(i);
     }
@@ -182,4 +224,4 @@ const arrayBufferToBase64 = (buffer: ArrayBuffer): string => {
     return window.btoa(binaryString);
 };
 
-export { GetPublicKey, RegisterUser, Login, ValidateUserToken };
+export { GetPublicKey, RegisterUser, Login, ValidateUserToken, Logout };

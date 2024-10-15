@@ -1,9 +1,8 @@
-import React, {useEffect, useState} from "react";
-import '../../output.css'
+import { useEffect, useState } from "react";
 import bg from '../../asset/image/bg-img.jpeg'
 import { GetProjectList } from "../../services/LandingPageService";
 import ProjectDetailCard from "../../components/ProjectDetailCard";
-import { ValidateUserToken } from "../../services/AuthService";
+import { ValidateUserToken, Logout } from "../../services/AuthService";
 import AddProjectForm from "../../components/AddProjectForm";
 
 const LandingPage = () => {
@@ -22,8 +21,13 @@ const LandingPage = () => {
     const [projectId, setProjectId] = useState("");
     const [isProjectDetailHidden, setIsProjectDetailHidden] = useState(true);
     const [showAddProject, setShowAddProject] = useState(false);
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [isAdmin, setIsAdmin] = useState(false);
+    const [role, setRole] = useState("");
     const [greeting, setGreeting] = useState("Hello there!");
+    const [username, setUsername] = useState(() => {
+        const storedUsername = localStorage.getItem("Username");
+        return storedUsername ? ` ${storedUsername}` : "";
+    });
 
     useEffect(() => {
         const fetchProjects = async () => {
@@ -32,10 +36,10 @@ const LandingPage = () => {
         };
 
         const makeGreeting = () => {
-            const morning = "Good morning,"
-            const afternoon = "Good afternoon,"
-            const evening = "Good evening,"
-            
+            const morning = `Good morning${username},`
+            const afternoon = `Good afternoon${username},`
+            const evening = `Good evening${username},`
+
             const currentHour = new Date().getHours();
 
             if (currentHour < 12) {
@@ -47,26 +51,64 @@ const LandingPage = () => {
             }
         }
 
+        const validateUser = () => {
+            ValidateUserToken(localStorage.getItem("Token"), localStorage.getItem("Username")).then((res) => {
+                setRole(res);
+
+                if (res === "ADMINISTRATOR") {
+                    setIsAdmin(true);
+                }
+            });
+        }
+
         fetchProjects();
         makeGreeting();
-        setIsAuthenticated(ValidateUserToken(sessionStorage.getItem("Token"), sessionStorage.getItem("Username")));
-    }, []);
+        validateUser();
+    }, [username, role]);
+
+    const handleLogout = async () => {
+        await Logout(localStorage.getItem("Token"), localStorage.getItem("Username"));
+        setRole("");
+    }
 
     return (
-        <div className="min-h-screen font-sans overflow-y-auto bg-slate-700/30" style={style}>
+        <div className="min-h-screen font-sans overflow-y-hidden bg-slate-700/30 no-scrollbar" style={style}>
+            {role ? (
+                <button
+                    className="absolute text-center text-white rounded-lg bg-slate-700/25 p-2 border-2 top-2 right-2 
+                               hover:bg-gradient-to-r hover:from-slate-500/75 hover:to-slate-800/75 hover:scale-105
+                               active:bg-gradient-to-r active:from-slate-500 active:to-slate-800 active:scale-100
+                               transition-transform duration-200"
+                    onClick={handleLogout}
+                >
+                    Logout
+                </button>
+            ) : (
+                <button
+                    className="absolute text-center text-white rounded-lg bg-slate-700/25 p-2 border-2 top-2 right-2 
+                               hover:bg-gradient-to-r hover:from-slate-500/75 hover:to-slate-800/75 hover:scale-105
+                               active:bg-gradient-to-r active:from-slate-500 active:to-slate-800 active:scale-100
+                               transition-transform duration-200"
+                    onClick={() => window.location.href = '/auth'}
+                >
+                    Sign In / Sign Up
+                </button>
+            )}
+
+
             {/* Project Details Modal */}
             {!isProjectDetailHidden && (
-                <div 
-                    className="fixed z-50 inset-0 bg-black/80 flex justify-center items-center px-4" 
-                    onClick={() => { setIsProjectDetailHidden(true); setProjectId(""); }} 
+                <div
+                    className="fixed z-50 inset-0 bg-black/80 flex justify-center items-center px-4"
+                    onClick={() => { setIsProjectDetailHidden(true); setProjectId(""); }}
                 >
-                    <div 
-                        className="relative p-4 bg-white border border-gray-300 rounded shadow-lg max-w-md w-full" 
-                        onClick={(e) => e.stopPropagation()} 
+                    <div
+                        className="relative"
+                        onClick={(e) => e.stopPropagation()}
                     >
                         <button
-                            onClick={() => { setProjectId(""); setIsProjectDetailHidden(true); }}
-                            className="absolute top-2 right-5 text-gray-600 text-4xl hover:text-gray-900"
+                            onClick={() => { setIsProjectDetailHidden(true); }}
+                            className="absolute top-2 right-4 text-gray-400 text-4xl hover:text-gray-200 focus:outline-none"
                         >
                             &times;
                         </button>
@@ -77,13 +119,13 @@ const LandingPage = () => {
 
             {/* Add Project Modal */}
             {showAddProject && (
-                <div 
-                    className="fixed z-50 inset-0 bg-black/80 flex justify-center items-center px-4" 
+                <div
+                    className="fixed z-50 inset-0 bg-black/80 flex justify-center items-center px-4"
                     onClick={() => { setShowAddProject(false); }}
                 >
-                    <div 
-                        className="relative p-4 bg-white border border-gray-300 rounded shadow-lg max-w-md w-full" 
-                        onClick={(e) => e.stopPropagation()} 
+                    <div
+                        className="relative p-4 bg-white border border-gray-300 rounded shadow-lg max-w-md w-full"
+                        onClick={(e) => e.stopPropagation()}
                     >
                         <button
                             onClick={() => { setShowAddProject(false); }}
@@ -105,40 +147,29 @@ const LandingPage = () => {
                     </h1>
                 </div>
 
-                {/* Projects Grid */}
+                {/* Projects */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 px-5 sm:px-10 pb-10">
-                    <button 
-                        onClick={() => {
-                            // setProjectId(project['id']); 
-                            setIsProjectDetailHidden(!isProjectDetailHidden);
-                        }}
-                        className="h-40 sm:h-52 text-center text-white rounded-lg bg-slate-700/25 hover:bg-gradient-to-r from-slate-500/75 to-slate-800/75 p-2 border-2"
-                    >
-                        <h1 className="text-3xl sm:text-4xl font-semibold mb-4">Project Dummy1</h1>
-                        <h2 className="text-md sm:text-2xl font-sans">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore...</h2>
-                    </button>
-                    {projects.map((project) => (
-                        <button 
-                            key={project['id']} 
-                            onClick={() => {
-                                setProjectId(project['id']); 
-                                setIsProjectDetailHidden(!isProjectDetailHidden);
-                            }}
-                            className="h-40 sm:h-52 text-center text-white rounded-lg bg-slate-700/25 hover:bg-gradient-to-r from-slate-500/75 to-slate-800/75 p-2 border-2"
-                        >
-                            <h1 className="text-3xl sm:text-4xl font-semibold mb-4">{project['projectName']}</h1>
-                            <h2 className="text-md sm:text-2xl font-sans">{project['projectDescriptionShort']}</h2>
-                        </button>
-                    ))}
-
-                    {isAuthenticated && (
+                    {isAdmin && (
                         <button onClick={() => { setShowAddProject(true); }}>
-                            <div className="h-40 sm:h-52 items-center text-center text-white rounded-lg bg-slate-700/25 hover:bg-gradient-to-r from-slate-500/75 to-slate-800/75 p-2 border-2">
+                            <div className="h-40 sm:h-52 text-center text-white rounded-lg bg-slate-700/25 p-2 border-2 hover:bg-gradient-to-r hover:from-slate-500/75 hover:to-slate-800/75 hover:scale-105 active:bg-gradient-to-r active:from-slate-500 active:to-slate-800 active:scale-100 transition-transform duration-200">
                                 <h1 className="text-6xl font-semibold mb-4 mt-4">+</h1>
                                 <h2 className="text-xl sm:text-2xl font-sans">Add Project</h2>
                             </div>
                         </button>
                     )}
+                    {projects.map((project) => (
+                        <button
+                            key={project['id']}
+                            onClick={() => {
+                                setProjectId(project['id']);
+                                setIsProjectDetailHidden(!isProjectDetailHidden);
+                            }}
+                            className="h-40 sm:h-52 text-center text-white rounded-lg bg-slate-700/25 p-2 border-2 hover:bg-gradient-to-r hover:from-slate-500/75 hover:to-slate-800/75 hover:scale-105 active:bg-gradient-to-r active:from-slate-500 active:to-slate-800 active:scale-100 transition-transform duration-200"
+                        >
+                            <h1 className="text-3xl sm:text-4xl font-semibold mb-4">{project['projectName']}</h1>
+                            <h2 className="text-md sm:text-2xl font-sans">{project['projectDescriptionShort']}</h2>
+                        </button>
+                    ))}
                 </div>
             </div>
         </div>

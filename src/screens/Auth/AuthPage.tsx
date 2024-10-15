@@ -1,19 +1,17 @@
-import React, {useEffect, useState} from "react";
-import '../../output.css'
+import { useEffect, useState } from "react";
 import bg from '../../asset/image/bg-img.jpeg'
-import { GetProjectList } from "../../services/LandingPageService";
-import ProjectDetailCard from "../../components/ProjectDetailCard";
 import LoginForm from "../../components/LoginForm";
 import SignupForm from "../../components/SignupForm";
 import { GetPublicKey } from "../../services/AuthService";
 
 const AuthPage = () => {
 
-    const style = {backgroundImage: `url(${bg})`,
-                   backgroundPosition: 'center',
-                   backgroundSize: 'cover',
-                   backgroundRepeat: 'no-repeat'
-                  }
+    const style = {
+        backgroundImage: `url(${bg})`,
+        backgroundPosition: 'center',
+        backgroundSize: 'cover',
+        backgroundRepeat: 'no-repeat'
+    }
     const [authState, setAuthState] = useState('login');
 
     useEffect(() => {
@@ -36,7 +34,7 @@ const AuthPage = () => {
                     <button className={loginButtonClass} onClick={() => setAuthState('login')}>Login</button>
                     <button className={signupButtonClass} onClick={() => setAuthState('signup')}>Sign Up</button>
                     <div className="m-4">
-                        {authState === 'login' ? <LoginForm/> : <SignupForm/>}
+                        {authState === 'login' ? <LoginForm /> : <SignupForm />}
                     </div>
                 </div>
             </div>

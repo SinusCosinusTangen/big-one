@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import '../output.css';
 import { Icon } from 'react-icons-kit';
 import { eyeOff } from 'react-icons-kit/feather/eyeOff';
 import { eye } from 'react-icons-kit/feather/eye';
@@ -9,7 +8,7 @@ import { Login } from '../services/AuthService';
 const LoginForm = () => {
     const [inputType, setInputType] = useState("password");
     const [icon, setIcon] = useState(eyeOff);
-    const [username, setUsername] = useState("");
+    const [usernameEmail, setUsernameEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loginMethod, setLoginMethod] = useState("username/email");
 
@@ -32,24 +31,24 @@ const LoginForm = () => {
     };
 
     const handleLogin = async () => {
-        await Login(username, username, password, loginMethod);
+        await Login(usernameEmail, password, loginMethod);
     };
 
     return (
         <form onSubmit={(e) => { e.preventDefault(); handleLogin(); }} className="max-w-sm mx-auto p-4">
             <p className="mt-2 text-lg">Username/Email</p>
-            <input 
-                type="text" 
-                className={inputClass} 
-                onChange={(e) => setUsername(e.target.value)} 
+            <input
+                type="text"
+                className={inputClass}
+                onChange={(e) => setUsernameEmail(e.target.value)}
                 required
             />
             <p className="mt-2 text-lg">Password</p>
             <div className="relative flex items-center mb-2">
-                <input 
-                    type={inputType} 
-                    className={inputPasswordClass} 
-                    onChange={(e) => setPassword(e.target.value)} 
+                <input
+                    type={inputType}
+                    className={inputPasswordClass}
+                    onChange={(e) => setPassword(e.target.value)}
                     required
                 />
                 <span className="absolute right-2 cursor-pointer" onClick={handleShowPassword}>
@@ -57,16 +56,17 @@ const LoginForm = () => {
                 </span>
             </div>
             <a href="#" className="text-blue-500 hover:underline">Forgot password?</a>
-            
-            <button 
+
+            <button
                 className="mt-6 block w-full h-10 px-3 py-2 bg-sky-500 text-white text-sm font-semibold rounded-md shadow-sm 
                           hover:bg-sky-600 active:bg-sky-700 focus:ring focus:ring-sky-300"
                 type="submit"
+                onClick={handleLogin}
             >
                 Sign In
             </button>
             <div className="relative flex items-center mt-2">
-                <button 
+                <button
                     className="flex items-center justify-center w-full h-10 px-3 py-1 bg-white border border-sky-500 rounded-md text-sky-500 text-sm shadow-sm 
                                font-semibold hover:bg-sky-500 hover:text-white active:bg-sky-600 focus:ring focus:ring-sky-300"
                     onClick={() => console.log('submitted')}

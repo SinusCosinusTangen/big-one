@@ -1,4 +1,4 @@
-import TechStack from "./TechStack";
+import { TechStack } from "./TechStack";
 
 interface Project {
     id: string;
