@@ -11,8 +11,10 @@ const LoginForm = () => {
     const [usernameEmail, setUsernameEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loginMethod, setLoginMethod] = useState("username/email");
+    const [error, setError] = useState<string | null>(null);
 
-    const inputClass = `mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400
+    var inputClassBorder = `border-slate-300`
+    var inputClass = `mt-1 block w-full px-3 py-2 bg-white border ${inputClassBorder} rounded-md text-sm shadow-sm placeholder-slate-400
                         focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500
                         disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none
                         invalid:border-pink-500 invalid:text-pink-600
@@ -31,11 +33,26 @@ const LoginForm = () => {
     };
 
     const handleLogin = async () => {
-        await Login(usernameEmail, password, loginMethod);
+        try {
+            const result = await Login(usernameEmail, password, loginMethod);
+
+            if (result?.error == "WRONG PASSWORD" || result?.error == "USER NOT FOUND") {
+                setError("Username not found or password is incorrect");
+                inputClassBorder = `border-pink-500`;
+            } else if (result?.error) {
+                setError(result?.error);
+            } else {
+                // Login ok
+            }
+        } catch (error) {
+            console.error("An unexpected error occurred:", error);
+        }
+
     };
 
     return (
         <form onSubmit={(e) => { e.preventDefault(); handleLogin(); }} className="max-w-sm mx-auto p-4">
+            {error && <p className="text-red-500">{error}</p>}
             <p className="mt-2 text-lg">Username/Email</p>
             <input
                 type="text"

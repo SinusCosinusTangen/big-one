@@ -77,13 +77,17 @@ const Login = async (usernameEmail: string, password: string, loginMethod: strin
             body: JSON.stringify(request),
         });
 
+        const jsonResponse = await response.json();
+
         if (!response.ok) {
+            if (jsonResponse.data) {
+                throw new Error(jsonResponse.data);
+            }
             throw new Error('Network response was not ok');
         }
 
-        const jsonResponse = await response.json();
-        var token = jsonResponse.data["token"];
-        var username = jsonResponse.data["username"]
+        const token = jsonResponse.data["token"];
+        const username = jsonResponse.data["username"];
         localStorage.setItem("Token", token);
         localStorage.setItem("Username", username);
 
@@ -92,11 +96,12 @@ const Login = async (usernameEmail: string, password: string, loginMethod: strin
         }
 
         return jsonResponse.data;
-    } catch (error) {
-        console.error(error);
-        return null;
+    } catch (error: any) {
+        console.error(error.message);
+        return { error: error.message };
     }
 }
+
 
 const ValidateUserToken = async (token: string | null, username: string | null) => {
     try {

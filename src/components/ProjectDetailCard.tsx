@@ -6,6 +6,7 @@ import { ValidateUserToken } from "../services/AuthService";
 import Icon from "react-icons-kit";
 import { pencil } from "react-icons-kit/fa/pencil"
 import { trash } from "react-icons-kit/fa/trash"
+import AddProjectForm from "./AddProjectForm";
 
 interface ProjectCardProps {
     id: string;
@@ -17,6 +18,7 @@ const ProjectDetailCard: React.FC<ProjectCardProps> = ({ id }) => {
     const [error, setError] = useState<string | null>(null);
     const [isAdmin, setIsAdmin] = useState(false);
     const [role, setRole] = useState("");
+    const [showEditProject, setShowEditProject] = useState(false);
 
     useEffect(() => {
         const fetchProjects = async () => {
@@ -57,6 +59,27 @@ const ProjectDetailCard: React.FC<ProjectCardProps> = ({ id }) => {
 
     return (
         <div className="h-fit w-screen overlay p-4 md:p-6 bg-white shadow-lg rounded-lg max-w-full md:max-w-md mx-auto transition-transform duration-200">
+            {/* Add Project Modal */}
+            {showEditProject && (
+                <div
+                    className="fixed z-50 inset-0 bg-black/80 flex justify-center items-center px-4"
+                    onClick={() => { setShowEditProject(false); }}
+                >
+                    <div
+                        className="relative p-4 bg-white border border-gray-300 rounded shadow-lg max-w-md w-full"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <button
+                            onClick={() => { setShowEditProject(false); }}
+                            className="absolute top-2 right-5 text-gray-600 text-4xl hover:text-gray-900"
+                        >
+                            &times;
+                        </button>
+                        <AddProjectForm id={id} />
+                    </div>
+                </div>
+            )}
+
             <div className="card">
                 <h2 className="text-2xl sm:text-3xl font-semibold">{project?.projectName}</h2>
                 <p className="text-base sm:text-lg font-sans text-start mb-4">{project?.projectDescriptionLong}</p>
@@ -87,7 +110,7 @@ const ProjectDetailCard: React.FC<ProjectCardProps> = ({ id }) => {
                     <div className="flex justify-end items-center">
                         <button
                             className="flex items-center text-base sm:text-lg hover:text-blue-500 hover:scale-105 active:scale-100 transition-transform duration-200 mr-4"
-                            onClick={() => { }}
+                            onClick={() => setShowEditProject(true)}
                         >
                             <Icon icon={pencil} style={{ marginBottom: '4px' }} />
                             <span className="text-lg" style={{ lineHeight: '1.5' }}>Edit</span>

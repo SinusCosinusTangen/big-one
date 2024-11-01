@@ -74,6 +74,37 @@ const AddProject = async (projectName: string, projectDescription: string, techS
     }
 }
 
+const UpdateProject = async (projectId: string, projectName: string, projectDescription: string, techStacks: TechStackRequest[], projectLink: string) => {
+    try {
+
+        const request = {
+            "id": projectId,
+            projectName,
+            "projectDescriptionLong": projectDescription,
+            "techStacks": techStacks,
+            projectLink
+        };
+
+        const response = await fetch(`${API_URL}/${projectId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + localStorage.getItem("Token"),
+            },
+            body: JSON.stringify(request),
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        window.location.href = "/";
+    } catch (error) {
+        console.error(error);
+        return null;
+    }
+}
+
 const DeleteProject = async (id: string) => {
     try {
         const response = await fetch(`${API_URL}/${id}`, {
@@ -95,4 +126,4 @@ const DeleteProject = async (id: string) => {
     }
 }
 
-export { GetProjectList, GetProject, AddProject, DeleteProject };
+export { GetProjectList, GetProject, AddProject, UpdateProject, DeleteProject };
