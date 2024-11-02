@@ -1,8 +1,9 @@
-const API_URL = process.env.REACT_APP_PROJECT1_API_URL + '/Project';
+import { TechStackRequest } from "../models/TechStack";
+
+const API_URL = process.env.REACT_APP_MIDDLEWARE_API_URL + '/Project';
 
 const GetProjectList = async () => {
     try {
-        console.log(process.env.REACT_APP_PROJECT1_API_URL)
         const response = await fetch(`${API_URL}`, {
             method: 'GET',
             headers: {
@@ -15,10 +16,10 @@ const GetProjectList = async () => {
         }
 
         const jsonResponse = await response.json();
-        return jsonResponse.data; // Return the projects
+        return jsonResponse.data;
     } catch (error) {
         console.error(error);
-        return []; // Return an empty array on error
+        return [];
     }
 };
 
@@ -36,21 +37,20 @@ const GetProject = async (id: string) => {
         }
 
         const jsonResponse = await response.json();
-        return jsonResponse.data; // Return the projects
+        return jsonResponse.data;
     } catch (error) {
         console.error(error);
-        return null; // Return an empty array on error
+        return null;
     }
 };
 
-const AddProject = async (projectName: string, projectDescription: string, techStacks: string[], projectLink: string) => {
+const AddProject = async (projectName: string, projectDescription: string, techStacks: TechStackRequest[], projectLink: string) => {
     try {
-        console.log(projectName)
 
         const request = {
             projectName,
             "projectDescriptionLong": projectDescription,
-            techStacks,
+            "techStacks": techStacks,
             projectLink
         };
 
@@ -58,7 +58,7 @@ const AddProject = async (projectName: string, projectDescription: string, techS
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + sessionStorage.getItem("Token"),
+                'Authorization': 'Bearer ' + localStorage.getItem("Token"),
             },
             body: JSON.stringify(request),
         });
@@ -67,12 +67,63 @@ const AddProject = async (projectName: string, projectDescription: string, techS
             throw new Error('Network response was not ok');
         }
 
-        const jsonResponse = await response.json();
-        return jsonResponse.data;
+        window.location.href = "/";
     } catch (error) {
         console.error(error);
         return null;
     }
 }
 
-export { GetProjectList, GetProject, AddProject };
+const UpdateProject = async (projectId: string, projectName: string, projectDescription: string, techStacks: TechStackRequest[], projectLink: string) => {
+    try {
+
+        const request = {
+            "id": projectId,
+            projectName,
+            "projectDescriptionLong": projectDescription,
+            "techStacks": techStacks,
+            projectLink
+        };
+
+        const response = await fetch(`${API_URL}/${projectId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + localStorage.getItem("Token"),
+            },
+            body: JSON.stringify(request),
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        window.location.href = "/";
+    } catch (error) {
+        console.error(error);
+        return null;
+    }
+}
+
+const DeleteProject = async (id: string) => {
+    try {
+        const response = await fetch(`${API_URL}/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + localStorage.getItem("Token"),
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        window.location.href = "/";
+    } catch (error) {
+        console.error(error);
+        return null;
+    }
+}
+
+export { GetProjectList, GetProject, AddProject, UpdateProject, DeleteProject };

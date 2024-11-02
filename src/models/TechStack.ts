@@ -1,9 +1,18 @@
-interface TechStack {
-    id: string;
+export interface TechStack {
+    id: string | null | undefined;
     name: string;
     type: string;
-    createdDate: string;
-    lastModified: string;
+    createdDate: string | null;
+    lastModified: string | null;
 }
 
-export default TechStack;
+export class TechStackRequest {
+
+    name: string;
+    type: string;
+
+    constructor() {
+        this.name = "";
+        this.type = "";
+    }
+}
