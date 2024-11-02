@@ -7,14 +7,13 @@ import AddProjectForm from "../../components/AddProjectForm";
 
 const LandingPage = () => {
 
-    // Retaining background image styling
     const style = {
         backgroundImage: `url(${bg})`,
         backgroundPosition: 'center',
         backgroundSize: 'cover',
         backgroundRepeat: 'no-repeat',
         backgroundAttachment: 'fixed',
-        minHeight: '100vh', // Ensure it covers the full height
+        minHeight: '100vh',
     };
 
     const [projects, setProjects] = useState([]);
@@ -42,9 +41,9 @@ const LandingPage = () => {
 
             const currentHour = new Date().getHours();
 
-            if (currentHour < 12) {
+            if (currentHour >= 4 && currentHour < 12) {
                 setGreeting(morning);
-            } else if (currentHour < 18) {
+            } else if (currentHour >= 12 && currentHour < 18) {
                 setGreeting(afternoon);
             } else {
                 setGreeting(evening);
