@@ -1,3 +1,6 @@
+import { User } from "firebase/auth";
+import { GOOGLE } from "../constant/Value";
+
 const API_URL = process.env.REACT_APP_MIDDLEWARE_API_URL + '/Auth';
 
 const GetPublicKey = async () => {
@@ -102,6 +105,94 @@ const Login = async (usernameEmail: string, password: string, loginMethod: strin
     }
 }
 
+const HandleGoogleLogin = async (result: any) => {
+    const user = result.user;
+
+    const request = {
+        email: user.email,
+        loginMethod: GOOGLE,
+        firebaseId: user.uid
+    };
+
+    try {
+        const validateResponse = await fetch(`${API_URL}/validate-user`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(request),
+        });
+
+        if (!validateResponse.ok) {
+            return { user: user, isExists: false };
+        }
+
+        const loginResponse = await fetch(`${API_URL}/google`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(request),
+        });
+
+        if (!loginResponse.ok) {
+
+        }
+
+        const jsonResponse = await loginResponse.json();
+
+        const token = jsonResponse.data["token"];
+        const username = jsonResponse.data["username"];
+        localStorage.setItem("Token", token);
+        localStorage.setItem("Username", username);
+
+        if (token) {
+            window.location.href = "/";
+        }
+
+        return;
+    } catch (error) {
+        console.error("Validation Error:", error);
+    }
+};
+
+const HandleUsernameSubmit = async (user: User, username: string) => {
+    const request = {
+        username: username,
+        email: user.email,
+        loginMethod: 'Google',
+        firebaseUid: user?.uid,
+        token: await user?.getIdToken()
+    };
+
+    try {
+        const response = await fetch(`${API_URL}/google`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(request),
+        });
+
+        if (!response.ok) {
+            throw new Error("Network response was not ok");
+        }
+
+        const jsonResponse = await response.json();
+        const token = jsonResponse.data["token"];
+        const username = jsonResponse.data["username"];
+        localStorage.setItem("Token", token);
+        localStorage.setItem("Username", username);
+
+        if (token) {
+            window.location.href = "/";
+        }
+
+        return;
+    } catch (error) {
+        console.error("Username submission error:", error);
+    }
+};
 
 const ValidateUserToken = async (token: string | null, username: string | null) => {
     try {
@@ -153,8 +244,6 @@ const Logout = async (token: string | null, username: string | null) => {
     });
 
     const jsonResponse = await response.json();
-
-    console.log(jsonResponse);
 
     if (jsonResponse["data"] === "LOGOUT") {
         localStorage.removeItem("Token");
@@ -229,4 +318,4 @@ const arrayBufferToBase64 = (buffer: ArrayBuffer): string => {
     return window.btoa(binaryString);
 };
 
-export { GetPublicKey, RegisterUser, Login, ValidateUserToken, Logout };
+export { GetPublicKey, RegisterUser, Login, ValidateUserToken, Logout, HandleGoogleLogin, HandleUsernameSubmit };
