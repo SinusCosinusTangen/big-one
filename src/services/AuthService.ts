@@ -147,9 +147,7 @@ const HandleGoogleLogin = async (result: any) => {
         localStorage.setItem("Username", username);
 
         if (token) {
-            console.log(jsonResponse);
-            return { user: user, isExists: true };
-            // window.location.href = "/";
+            return { user: user, isExists: true, loggedIn: true };
         }
 
         return;
