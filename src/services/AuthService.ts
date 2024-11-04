@@ -1,5 +1,5 @@
 import { User } from "firebase/auth";
-import { GOOGLE } from "../constant/Value";
+import { GOOGLE, OFFLINE, ONLINE } from "../constant/Value";
 
 const API_URL = process.env.REACT_APP_MIDDLEWARE_API_URL + '/Auth';
 
@@ -13,15 +13,14 @@ const GetPublicKey = async () => {
         });
 
         if (!response.ok) {
-            throw new Error('Network response was not ok');
+            return OFFLINE;
         }
 
         const jsonResponse = await response.json();
         sessionStorage.setItem("publicKey", jsonResponse.data['publicKey']);
-        return jsonResponse.data;
+        return ONLINE;
     } catch (error) {
-        console.error(error);
-        return;
+        return OFFLINE;
     }
 };
 
@@ -111,7 +110,8 @@ const HandleGoogleLogin = async (result: any) => {
     const request = {
         email: user.email,
         loginMethod: GOOGLE,
-        firebaseId: user.uid
+        firebaseId: user.uid,
+        token: user.accessToken
     };
 
     try {
@@ -147,7 +147,9 @@ const HandleGoogleLogin = async (result: any) => {
         localStorage.setItem("Username", username);
 
         if (token) {
-            window.location.href = "/";
+            console.log(jsonResponse);
+            return { user: user, isExists: true };
+            // window.location.href = "/";
         }
 
         return;

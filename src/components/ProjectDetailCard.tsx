@@ -54,7 +54,7 @@ const ProjectDetailCard: React.FC<ProjectCardProps> = ({ id }) => {
         }
     }
 
-    if (loading) return <div>Loading...</div>;
+    if (loading) return <div className="h-fit w-screen overlay p-4 md:p-6 bg-white shadow-lg rounded-lg max-w-full md:max-w-md mx-auto transition-transform duration-200">Loading...</div>;
     if (error) return <div>Error: {error}</div>;
 
     return (

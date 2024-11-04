@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { ADMIN } from '../constant/Value';
+import { LoadProjectToFirestore } from '../services/LandingPageService';
 
 interface NavbarProps {
     role: string,
@@ -26,6 +28,10 @@ const Navbar: React.FC<NavbarProps> = ({ role, handleLogout }) => {
         };
     }, []);
 
+    const handleLoadToFirestore = async () => {
+        await LoadProjectToFirestore();
+    }
+
     // Navbar styling class, changes color when scrolled
     const navbarClass = `fixed w-full px-4 z-50 ${scrolled == 1 ? 'bg-slate-800/25' : scrolled == 2 ? 'bg-slate-800/75' : 'bg-transparent'} flex justify-between transition-transform duration-200`;
     const buttonClass = `text-center text-slate-300/50 p-2 py-2
@@ -42,6 +48,11 @@ const Navbar: React.FC<NavbarProps> = ({ role, handleLogout }) => {
 
             {/* Right section */}
             <div className="flex space-x-4">
+                {role == ADMIN ? (
+                    <button className={buttonClass} onClick={handleLoadToFirestore}>
+                        Load Data
+                    </button>
+                ) : (<div></div>)}
                 <a className={buttonClass} href={cvUrl} target="_blank">
                     James's CV
                 </a>
