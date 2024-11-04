@@ -1,4 +1,6 @@
 import { TechStackRequest } from "../models/TechStack";
+import { collection, addDoc, getDocs, query, where, deleteDoc } from "firebase/firestore";
+import { db } from '../services/Firebase';
 
 const API_URL = process.env.REACT_APP_MIDDLEWARE_API_URL + '/Project';
 
@@ -12,14 +14,14 @@ const GetProjectList = async () => {
         });
 
         if (!response.ok) {
-            throw new Error('Network response was not ok');
+            return await GetProjectListFromFirestore();
         }
 
         const jsonResponse = await response.json();
         return jsonResponse.data;
     } catch (error) {
         console.error(error);
-        return [];
+        return await GetProjectListFromFirestore();;
     }
 };
 
@@ -33,14 +35,14 @@ const GetProject = async (id: string) => {
         });
 
         if (!response.ok) {
-            throw new Error('Network response was not ok');
+            return await GetProjectFromFirestore(id);
         }
 
         const jsonResponse = await response.json();
         return jsonResponse.data;
     } catch (error) {
         console.error(error);
-        return null;
+        return await GetProjectFromFirestore(id);
     }
 };
 
@@ -126,4 +128,59 @@ const DeleteProject = async (id: string) => {
     }
 }
 
-export { GetProjectList, GetProject, AddProject, UpdateProject, DeleteProject };
+const deleteProjectsFromFirestore = async () => {
+    const projectsCollection = collection(db, 'projects');
+    const projectsSnapshot = await getDocs(projectsCollection);
+
+    const deletePromises = projectsSnapshot.docs.map(doc => deleteDoc(doc.ref));
+
+    await Promise.all(deletePromises);
+};
+
+const LoadProjectToFirestore = async () => {
+    try {
+        await deleteProjectsFromFirestore();
+        const projects = await GetProjectList();
+        for (const project of projects) {
+            await addDoc(collection(db, "projects"), project);
+        }
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+const GetProjectListFromFirestore = async () => {
+    try {
+        const querySnapshot = await getDocs(collection(db, 'projects'));
+        const projectList = querySnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        }));
+        return projectList;
+    } catch (error) {
+        console.error("Error fetching projects: ", error);
+    }
+};
+
+const GetProjectFromFirestore = async (id: string) => {
+    try {
+        const projectsRef = collection(db, 'projects');
+
+        const q = query(projectsRef, where('id', '==', id));
+
+        const querySnapshot = await getDocs(q);
+
+        if (querySnapshot.empty) {
+            console.log("No matching documents found.");
+            return null;
+        }
+
+        const projectData = querySnapshot.docs[0].data();
+        const firestoreId = querySnapshot.docs[0].id;
+        return { firestoreId, ...projectData };
+    } catch (error) {
+        console.error("Error fetching project: ", error);
+    }
+};
+
+export { GetProjectList, GetProject, AddProject, UpdateProject, DeleteProject, LoadProjectToFirestore };

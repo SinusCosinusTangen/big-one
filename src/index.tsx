@@ -9,6 +9,7 @@ import AuthPage from './screens/Auth/AuthPage';
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
+document.title = "BigOne";
 root.render(
   <React.StrictMode>
     <Router>
