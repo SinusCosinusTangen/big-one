@@ -30,7 +30,7 @@ const AddProjectForm: React.FC<ProjectCardProps> = ({ id }) => {
                         setProjectLink(projectDetail["projectLink"]);
                     }
                 } catch (error) {
-                    console.log(error);
+                    console.error(error);
                     setError("error");
                 } finally {
                     setLoading(false);

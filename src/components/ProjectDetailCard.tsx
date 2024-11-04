@@ -26,7 +26,7 @@ const ProjectDetailCard: React.FC<ProjectCardProps> = ({ id }) => {
                 const projectDetail = await GetProject(id);
                 setProject(projectDetail);
             } catch (error) {
-                console.log(error);
+                console.error(error);
                 setError("Error fetching project details");
             } finally {
                 setLoading(false);

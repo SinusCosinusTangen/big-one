@@ -1,23 +1,26 @@
 import { useEffect, useState } from "react";
 import bg from '../../asset/image/bg-img.jpeg'
-import { GetProjectList } from "../../services/LandingPageService";
 import ProjectDetailCard from "../../components/ProjectDetailCard";
 import { ValidateUserToken, Logout } from "../../services/AuthService";
 import AddProjectForm from "../../components/AddProjectForm";
+import Project from "../../models/Project";
+import Navbar from "../../components/Navbar";
+import ScrollButton from "../../components/ScrollButton";
+import { GetProjectList } from "../../services/LandingPageService";
 
 const LandingPage = () => {
+    const cvUrl = process.env.REACT_APP_CV_URL;
 
-    // Retaining background image styling
     const style = {
         backgroundImage: `url(${bg})`,
         backgroundPosition: 'center',
         backgroundSize: 'cover',
         backgroundRepeat: 'no-repeat',
         backgroundAttachment: 'fixed',
-        minHeight: '100vh', // Ensure it covers the full height
+        minHeight: '100vh',
     };
 
-    const [projects, setProjects] = useState([]);
+    const [projects, setProjects] = useState<Project[]>([]);
     const [projectId, setProjectId] = useState("");
     const [isProjectDetailHidden, setIsProjectDetailHidden] = useState(true);
     const [showAddProject, setShowAddProject] = useState(false);
@@ -29,38 +32,38 @@ const LandingPage = () => {
         return storedUsername ? ` ${storedUsername}` : "";
     });
 
-    useEffect(() => {
-        const fetchProjects = async () => {
-            const projectList = await GetProjectList();
-            setProjects(projectList);
-        };
+    const fetchProjects = async () => {
+        const projectList = await GetProjectList();
+        setProjects(projectList);
+    };
 
-        const makeGreeting = () => {
-            const morning = `Good morning${username},`
-            const afternoon = `Good afternoon${username},`
-            const evening = `Good evening${username},`
+    const makeGreeting = () => {
+        const morning = `Good morning${username},`
+        const afternoon = `Good afternoon${username},`
+        const evening = `Good evening${username},`
 
-            const currentHour = new Date().getHours();
+        const currentHour = new Date().getHours();
 
-            if (currentHour < 12) {
-                setGreeting(morning);
-            } else if (currentHour < 18) {
-                setGreeting(afternoon);
-            } else {
-                setGreeting(evening);
+        if (currentHour >= 4 && currentHour < 12) {
+            setGreeting(morning);
+        } else if (currentHour >= 12 && currentHour < 18) {
+            setGreeting(afternoon);
+        } else {
+            setGreeting(evening);
+        }
+    }
+
+    const validateUser = () => {
+        ValidateUserToken(localStorage.getItem("Token"), localStorage.getItem("Username")).then((res) => {
+            setRole(res);
+
+            if (res === "ADMINISTRATOR") {
+                setIsAdmin(true);
             }
-        }
+        });
+    }
 
-        const validateUser = () => {
-            ValidateUserToken(localStorage.getItem("Token"), localStorage.getItem("Username")).then((res) => {
-                setRole(res);
-
-                if (res === "ADMINISTRATOR") {
-                    setIsAdmin(true);
-                }
-            });
-        }
-
+    useEffect(() => {
         fetchProjects();
         makeGreeting();
         validateUser();
@@ -73,29 +76,7 @@ const LandingPage = () => {
 
     return (
         <div className="min-h-screen font-sans overflow-y-hidden bg-slate-700/30 no-scrollbar" style={style}>
-            {role ? (
-                <button
-                    className="absolute text-center text-white rounded-lg bg-slate-700/25 p-2 border-2 top-2 right-2 
-                               hover:bg-gradient-to-r hover:from-slate-500/75 hover:to-slate-800/75 hover:scale-105
-                               active:bg-gradient-to-r active:from-slate-500 active:to-slate-800 active:scale-100
-                               transition-transform duration-200"
-                    onClick={handleLogout}
-                >
-                    Logout
-                </button>
-            ) : (
-                <button
-                    className="absolute text-center text-white rounded-lg bg-slate-700/25 p-2 border-2 top-2 right-2 
-                               hover:bg-gradient-to-r hover:from-slate-500/75 hover:to-slate-800/75 hover:scale-105
-                               active:bg-gradient-to-r active:from-slate-500 active:to-slate-800 active:scale-100
-                               transition-transform duration-200"
-                    onClick={() => window.location.href = '/auth'}
-                >
-                    Sign In / Sign Up
-                </button>
-            )}
-
-
+            <Navbar role={role} handleLogout={handleLogout} />
             {/* Project Details Modal */}
             {!isProjectDetailHidden && (
                 <div
@@ -143,7 +124,7 @@ const LandingPage = () => {
                 <div className="py-16 sm:py-20 text-center">
                     <h2 className="text-white text-2xl sm:text-3xl md:text-4xl mt-4">{greeting}</h2>
                     <h1 className="text-white text-6xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold">
-                        Welcome to <a className="hover:underline hover:font-bold" href="#">James's</a> Portfolio
+                        Welcome to <a className="hover:underline hover:font-bold active:font-semibold" href={cvUrl} target="_blank">James's</a> Portfolio
                     </h1>
                 </div>
 
@@ -172,6 +153,7 @@ const LandingPage = () => {
                     ))}
                 </div>
             </div>
+            <ScrollButton />
         </div>
     );
 };
