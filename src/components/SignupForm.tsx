@@ -48,6 +48,8 @@ const SignupForm = () => {
                 var res = await HandleGoogleLogin(result);
                 if (!res?.isExists) {
                     setShowUsernameForm(true);
+                } else if (res?.isExists && res?.loggedIn) {
+                    window.location.href = "/";
                 }
                 setUser(res?.user);
             })
