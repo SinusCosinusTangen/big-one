@@ -7,6 +7,7 @@ import Project from "../../models/Project";
 import Navbar from "../../components/Navbar";
 import ScrollButton from "../../components/ScrollButton";
 import { GetProjectList } from "../../services/LandingPageService";
+import MessagePage from "../Message/MessagePage";
 
 const LandingPage = () => {
     const cvUrl = process.env.REACT_APP_CV_URL;
@@ -31,6 +32,7 @@ const LandingPage = () => {
         const storedUsername = localStorage.getItem("Username");
         return storedUsername ? ` ${storedUsername}` : "";
     });
+    const [showMessagePage, setShowMessagePage] = useState(false);
 
     const fetchProjects = async () => {
         const projectList = await GetProjectList();
@@ -55,9 +57,9 @@ const LandingPage = () => {
 
     const validateUser = () => {
         ValidateUserToken(localStorage.getItem("Token"), localStorage.getItem("Username")).then((res) => {
-            setRole(res);
+            setRole(res.role);
 
-            if (res === "ADMINISTRATOR") {
+            if (res.role === "ADMINISTRATOR") {
                 setIsAdmin(true);
             }
         });
@@ -74,9 +76,13 @@ const LandingPage = () => {
         setRole("");
     }
 
+    const toggleMessageOverlay = () => {
+        setShowMessagePage(true);
+    }
+
     return (
         <div className="min-h-screen font-sans overflow-y-hidden bg-slate-700/30 no-scrollbar" style={style}>
-            <Navbar role={role} handleLogout={handleLogout} />
+            <Navbar role={role} handleLogout={handleLogout} toggleMessageOverlay={toggleMessageOverlay} />
             {/* Project Details Modal */}
             {!isProjectDetailHidden && (
                 <div
@@ -126,6 +132,7 @@ const LandingPage = () => {
                     <h1 className="text-white text-6xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold">
                         Welcome to <a className="hover:underline hover:font-bold active:font-semibold" href={cvUrl} target="_blank">James's</a> Portfolio
                     </h1>
+                    <a href="https://github.com/SinusCosinusTangen">GitHub</a>
                 </div>
 
                 {/* Projects */}
@@ -153,6 +160,25 @@ const LandingPage = () => {
                     ))}
                 </div>
             </div>
+
+            {/* Message Modal */}
+            {showMessagePage && (
+                <div className="fixed inset-0 bg-black/80 flex justify-center items-center z-50"
+                    onClick={() => { setShowMessagePage(!showMessagePage); }}>
+                    <div
+                        className="relative h-fit w-full max-w-xl bg-white rounded shadow-lg"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <button
+                            onClick={() => { setShowMessagePage(false); }}
+                            className="absolute right-5 text-gray-600 text-4xl hover:text-gray-900"
+                        >
+                            &times;
+                        </button>
+                        <MessagePage />
+                    </div>
+                </div>
+            )}
             <ScrollButton />
         </div>
     );

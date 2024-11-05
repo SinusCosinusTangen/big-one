@@ -35,8 +35,8 @@ const ProjectDetailCard: React.FC<ProjectCardProps> = ({ id }) => {
 
         const validateUser = () => {
             ValidateUserToken(localStorage.getItem("Token"), localStorage.getItem("Username")).then((res) => {
-                setRole(res);
-                if (res === "ADMINISTRATOR") {
+                setRole(res.role);
+                if (res.role === "ADMINISTRATOR") {
                     setIsAdmin(true);
                 }
             });

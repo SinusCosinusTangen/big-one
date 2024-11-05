@@ -1,5 +1,6 @@
-import { User } from "firebase/auth";
+import { User as GoogleUser } from "firebase/auth";
 import { GOOGLE, OFFLINE, ONLINE } from "../constant/Value";
+import { User } from "../models/User";
 
 const API_URL = process.env.REACT_APP_MIDDLEWARE_API_URL + '/Auth';
 
@@ -156,7 +157,7 @@ const HandleGoogleLogin = async (result: any) => {
     }
 };
 
-const HandleUsernameSubmit = async (user: User, username: string) => {
+const HandleUsernameSubmit = async (user: GoogleUser, username: string) => {
     const request = {
         username: username,
         email: user.email,
@@ -194,7 +195,7 @@ const HandleUsernameSubmit = async (user: User, username: string) => {
     }
 };
 
-const ValidateUserToken = async (token: string | null, username: string | null) => {
+const ValidateUserToken = async (token: string | null, username: string | null): Promise<User> => {
     try {
         const request = {
             username,
@@ -216,16 +217,24 @@ const ValidateUserToken = async (token: string | null, username: string | null) 
         const jsonResponse = await response.json();
         var newToken = jsonResponse.data["token"];
 
+        const user: User = {
+            id: jsonResponse.data["id"],
+            username: jsonResponse.data["username"],
+            email: jsonResponse.data["email"],
+            role: jsonResponse.data["role"],
+            token: jsonResponse.data["token"]
+        }
+
         if (username && newToken !== "EXPIRED") {
             localStorage.setItem("Token", newToken);
             localStorage.setItem("Username", username);
 
-            return jsonResponse.data["role"];
+            return user;
         }
 
-        return "";
+        return user;
     } catch (error) {
-        return "";
+        throw error;
     }
 }
 
