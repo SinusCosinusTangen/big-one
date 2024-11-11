@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { query, collection, orderBy, limit, onSnapshot, addDoc, where } from 'firebase/firestore';
+import { query, collection, orderBy, limit, onSnapshot, addDoc, where, getDocs } from 'firebase/firestore';
 import { db } from '../services/Firebase';
 import MessageBubble from './MessageBubble';
 import Message from '../models/Message';
@@ -8,7 +8,7 @@ import { send } from 'react-icons-kit/fa/send'
 import Icon from 'react-icons-kit';
 
 interface MessageRoomProps {
-    user1: string;
+    user1: User;
     user2?: User;
 }
 
@@ -21,21 +21,19 @@ const MessageRoom: React.FC<MessageRoomProps> = ({ user1, user2 }) => {
 
     useEffect(() => {
         if (user2) {
-            console.log("to" + user1)
-            console.log("from" + user2.username)
             setMessages([]);
             const q1 = query(
                 collection(db, "messages"),
-                where("from", "==", user2.username),
-                where("to", "==", user1),
+                where("from", "==", user2.id),
+                where("to", "==", user1.id),
                 orderBy("createdAt", "desc"),
                 limit(50)
             );
 
             const q2 = query(
                 collection(db, "messages"),
-                where("from", "==", user1),
-                where("to", "==", user2.username),
+                where("from", "==", user1.id),
+                where("to", "==", user2.id),
                 orderBy("createdAt", "desc"),
                 limit(50)
             );
@@ -99,6 +97,19 @@ const MessageRoom: React.FC<MessageRoomProps> = ({ user1, user2 }) => {
         }
     }, []);
 
+    const fetchMessageUsers = async () => {
+        try {
+            const querySnapshot = await getDocs(collection(db, 'messageUser'));
+            const messageUserList = querySnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+            return messageUserList;
+        } catch (error) {
+            console.error("Error fetching projects: ", error);
+        }
+    }
+
     const sendMessage = async () => {
         try {
             if (!user2) {
@@ -112,15 +123,28 @@ const MessageRoom: React.FC<MessageRoomProps> = ({ user1, user2 }) => {
             }
 
             const message: Message = {
-                id: null,
-                from: user2.username,
-                to: user1,
+                from: user2.id,
+                fromUsername: user2.username,
+                to: user1.id,
+                toUsername: user1.username,
                 message: text,
                 createdAt: new Date().getTime()
             };
 
-            await addDoc(collection(db, "messages"), message);
+            const messageUser = {
+                id: user2.id,
+                username: user2.username
+            }
+
             setText("");
+            await addDoc(collection(db, "messages"), message);
+
+            const messageUserList = await fetchMessageUsers();
+            const messageUserIdList = messageUserList?.map((usr) => usr.id);
+
+            if (messageUserList?.length === 0 || (messageUserIdList && !messageUserIdList.includes(user2.id))) {
+                await addDoc(collection(db, "messageUser"), messageUser);
+            }
         } catch (error) {
             console.error("Error sending message:", error);
         }
@@ -128,10 +152,10 @@ const MessageRoom: React.FC<MessageRoomProps> = ({ user1, user2 }) => {
 
     return (
         <div className="flex flex-col h-full">
-            <p className="p-4 shadow-lg">{user1}</p>
-            <div ref={messageContainerRef} className="flex-grow overflow-y-auto max-h-[400px] p-2">
+            <p className="p-4 shadow-lg">{user1.username}</p>
+            <div ref={messageContainerRef} className="flex-grow overflow-y-auto max-h-[400px] p-2 message">
                 {messages.map((message) => (
-                    <MessageBubble key={message.id} message={message} currentUser={user2?.username} />
+                    <MessageBubble key={message.id} message={message} currentUser={user2?.id} />
                 ))}
             </div>
             <form

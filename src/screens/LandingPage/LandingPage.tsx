@@ -8,6 +8,8 @@ import Navbar from "../../components/Navbar";
 import ScrollButton from "../../components/ScrollButton";
 import { GetProjectList } from "../../services/LandingPageService";
 import MessagePage from "../Message/MessagePage";
+import { github, gitlab, linkedin } from "react-icons-kit/fa";
+import Icon from "react-icons-kit";
 
 const LandingPage = () => {
     const cvUrl = process.env.REACT_APP_CV_URL;
@@ -80,6 +82,10 @@ const LandingPage = () => {
         setShowMessagePage(true);
     }
 
+    const hrefButton = "relative flex items-center justify-center w-10 h-10 bg-slate-500/25 hover:bg-gray-200 rounded-lg transition-all duration-300 group hover:w-28";
+    const hrefIcon = "absolute transition-all duration-300 text-white group-hover:text-black group-hover:-translate-x-8";
+    const hrefSpan = "absolute opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-3";
+
     return (
         <div className="min-h-screen font-sans overflow-y-hidden bg-slate-700/30 no-scrollbar" style={style}>
             <Navbar role={role} handleLogout={handleLogout} toggleMessageOverlay={toggleMessageOverlay} />
@@ -127,12 +133,46 @@ const LandingPage = () => {
 
             <div className="mx-5">
                 {/* Header Section */}
-                <div className="py-16 sm:py-20 text-center">
+                <div className="pt-16 pb-12 sm:pt-20 text-center">
                     <h2 className="text-white text-2xl sm:text-3xl md:text-4xl mt-4">{greeting}</h2>
-                    <h1 className="text-white text-6xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold">
+                    <h1 className="block text-white text-6xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold">
                         Welcome to <a className="hover:underline hover:font-bold active:font-semibold" href={cvUrl} target="_blank">James's</a> Portfolio
                     </h1>
-                    <a href="https://github.com/SinusCosinusTangen">GitHub</a>
+                    <div className="flex justify-center mt-2 gap-2">
+                        <a
+                            href="https://github.com/SinusCosinusTangen"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={hrefButton}
+                        >
+                            <Icon icon={github} className={hrefIcon} />
+                            <span className={hrefSpan}>
+                                GitHub
+                            </span>
+                        </a>
+                        <a
+                            href="https://gitlab.com/SinusCosinusTangen"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={hrefButton}
+                        >
+                            <Icon icon={gitlab} className={hrefIcon} />
+                            <span className={hrefSpan}>
+                                GitLab
+                            </span>
+                        </a>
+                        <a
+                            href="https://linkedin.com/in/james-frederix-rolianto/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={hrefButton}
+                        >
+                            <Icon icon={linkedin} className={hrefIcon} />
+                            <span className={hrefSpan}>
+                                LinkedIn
+                            </span>
+                        </a>
+                    </div>
                 </div>
 
                 {/* Projects */}

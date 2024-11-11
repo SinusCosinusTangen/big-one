@@ -1,11 +1,16 @@
 import { TechStackRequest } from "../models/TechStack";
-import { collection, addDoc, getDocs, query, where, deleteDoc } from "firebase/firestore";
+import { collection, addDoc, getDocs, query, where, deleteDoc, getDoc, doc } from "firebase/firestore";
 import { db } from '../services/Firebase';
 
 const API_URL = process.env.REACT_APP_MIDDLEWARE_API_URL + '/Project';
 
 const GetProjectList = async () => {
     try {
+        const appState = await CheckMiddlewareStatus();
+        if (appState == 'OFFLINE') {
+            return await GetProjectListFromFirestore();
+        }
+
         const response = await fetch(`${API_URL}`, {
             method: 'GET',
             headers: {
@@ -27,6 +32,11 @@ const GetProjectList = async () => {
 
 const GetProject = async (id: string) => {
     try {
+        const appState = await CheckMiddlewareStatus();
+        if (appState == 'OFFLINE') {
+            return await GetProjectFromFirestore(id);
+        }
+
         const response = await fetch(`${API_URL}/${id}`, {
             method: 'GET',
             headers: {
@@ -183,4 +193,17 @@ const GetProjectFromFirestore = async (id: string) => {
     }
 };
 
-export { GetProjectList, GetProject, AddProject, UpdateProject, DeleteProject, LoadProjectToFirestore };
+const CheckMiddlewareStatus = async () => {
+    const docRef = doc(db, 'appState', 'middleware');
+    const docSnapshot = await getDoc(docRef);
+
+    if (docSnapshot.exists()) {
+        return docSnapshot.data()['state'];
+    } else {
+        console.log("No document found!");
+    }
+
+    return 'OFFLINE';
+}
+
+export { GetProjectList, GetProject, AddProject, UpdateProject, DeleteProject, LoadProjectToFirestore, CheckMiddlewareStatus };

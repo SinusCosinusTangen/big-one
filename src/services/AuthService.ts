@@ -218,7 +218,7 @@ const ValidateUserToken = async (token: string | null, username: string | null):
         var newToken = jsonResponse.data["token"];
 
         const user: User = {
-            id: jsonResponse.data["id"],
+            id: jsonResponse.data["uid"],
             username: jsonResponse.data["username"],
             email: jsonResponse.data["email"],
             role: jsonResponse.data["role"],
