@@ -4,6 +4,7 @@ import LoginForm from "../../components/LoginForm";
 import SignupForm from "../../components/SignupForm";
 import { GetPublicKey } from "../../services/AuthService";
 import { OFFLINE, ONLINE } from "../../constant/Value";
+import { CheckMiddlewareStatus } from "../../services/LandingPageService";
 
 const AuthPage = () => {
 
@@ -21,12 +22,21 @@ const AuthPage = () => {
         const fetchPublicKey = async () => {
             const publicKey = await GetPublicKey();
             if (publicKey) {
-                setServerStat(publicKey);
                 setLoading(false);
             }
         };
 
-        fetchPublicKey();
+        const checkMiddlewareStat = async () => {
+            const appState = await CheckMiddlewareStatus();
+            setServerStat(appState);
+            setLoading(false);
+
+            if (appState == 'ONLINE') {
+                fetchPublicKey();
+            }
+        }
+
+        checkMiddlewareStat();
     }, []);
 
     var loginButtonClass = "border-t-8 border-slate-200 w-1/2 py-4 bg-slate-200 rounded-tl text-slate-500 text-xl"

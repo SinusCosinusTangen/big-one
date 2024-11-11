@@ -3,13 +3,16 @@ import { ADMIN } from '../constant/Value';
 import { LoadProjectToFirestore } from '../services/LandingPageService';
 
 interface NavbarProps {
-    role: string,
-    handleLogout: any
+    role: string;
+    handleLogout?: any;
+    active?: any;
+    toggleMessageOverlay?: any;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ role, handleLogout }) => {
+const Navbar: React.FC<NavbarProps> = ({ role, handleLogout, active, toggleMessageOverlay }) => {
     const cvUrl = process.env.REACT_APP_CV_URL;
     const [scrolled, setScrolled] = useState(0);
+    const [activeButton, setActiveButton] = useState(active);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -32,7 +35,6 @@ const Navbar: React.FC<NavbarProps> = ({ role, handleLogout }) => {
         await LoadProjectToFirestore();
     }
 
-    // Navbar styling class, changes color when scrolled
     const navbarClass = `fixed w-full px-4 z-50 ${scrolled == 1 ? 'bg-slate-800/25' : scrolled == 2 ? 'bg-slate-800/75' : 'bg-transparent'} flex justify-between transition-transform duration-200`;
     const buttonClass = `text-center text-slate-300/50 p-2 py-2
                         hover:border-b-2 hover:border-white hover:text-white
@@ -58,7 +60,9 @@ const Navbar: React.FC<NavbarProps> = ({ role, handleLogout }) => {
                 </a>
                 {role ? (
                     <div className="flex space-x-4">
-                        <button className={buttonClass} onClick={() => { }}>
+                        <button
+                            className={`${buttonClass}  ${activeButton == "message" ? " border-b-2 border-white text-white" : ""}`}
+                            onClick={toggleMessageOverlay}>
                             Message
                         </button>
                         <button className={buttonClass} onClick={handleLogout}>

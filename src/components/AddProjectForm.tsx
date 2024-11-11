@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { AddProject, UpdateProject } from '../services/LandingPageService';
 import { TechStackRequest } from '../models/TechStack';
 import * as service from '../services/LandingPageService'
-import Project from '../models/Project';
 
 interface ProjectCardProps {
     id?: string;
@@ -86,7 +85,7 @@ const AddProjectForm: React.FC<ProjectCardProps> = ({ id }) => {
             {!projectName && (<label className="text-red-500">* This field is required.</label>)}
 
             <p className="mt-2 text-lg">Description</p>
-            <input value={projectDescription} type="text" className={inputClass} onChange={(e) => setProjectDescription(e.target.value)} required />
+            <textarea value={projectDescription} className={inputClass + " max-h-40"} onChange={(e) => setProjectDescription(e.target.value)} required />
             {!projectDescription && (<label className="text-red-500">* This field is required.</label>)}
 
             <p className="mt-2 text-lg">Tech Stacks</p>
