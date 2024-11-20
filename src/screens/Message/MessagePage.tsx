@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ValidateUserToken } from "../../services/AuthService";
+import { validateUserToken } from "../../services/AuthService";
 import MessageRoom from "../../components/MessageRoom";
 import { User } from "../../models/User";
 import { getDocs, collection } from "firebase/firestore";
@@ -14,7 +14,7 @@ const MessagePage = () => {
 
     const validateUser = async () => {
         try {
-            const res = await ValidateUserToken(localStorage.getItem("Token"), localStorage.getItem("Username"));
+            const res = await validateUserToken(localStorage.getItem("Token"), localStorage.getItem("Username"));
             setUser(res);
 
             if (res.role === "ADMINISTRATOR") {

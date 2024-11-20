@@ -4,7 +4,7 @@ import { User } from "../models/User";
 
 const API_URL = process.env.REACT_APP_MIDDLEWARE_API_URL + '/Auth';
 
-const GetPublicKey = async () => {
+const getPublicKey = async () => {
     try {
         const response = await fetch(`${API_URL}`, {
             method: 'GET',
@@ -25,7 +25,7 @@ const GetPublicKey = async () => {
     }
 };
 
-const RegisterUser = async (email: string, username: string, password: string, loginMethod: string) => {
+const registerUser = async (email: string, username: string, password: string, loginMethod: string) => {
     try {
         const encryptedPassword = await encryptPassword(password);
         if (!encryptedPassword) {
@@ -59,7 +59,7 @@ const RegisterUser = async (email: string, username: string, password: string, l
     }
 };
 
-const Login = async (usernameEmail: string, password: string, loginMethod: string) => {
+const login = async (usernameEmail: string, password: string, loginMethod: string) => {
     try {
         const encryptedPassword = await encryptPassword(password);
         if (!encryptedPassword) {
@@ -105,7 +105,7 @@ const Login = async (usernameEmail: string, password: string, loginMethod: strin
     }
 }
 
-const HandleGoogleLogin = async (result: any) => {
+const loginWithGoogle = async (result: any) => {
     const user = result.user;
 
     const request = {
@@ -157,7 +157,7 @@ const HandleGoogleLogin = async (result: any) => {
     }
 };
 
-const HandleUsernameSubmit = async (user: GoogleUser, username: string) => {
+const submitUsername = async (user: GoogleUser, username: string) => {
     const request = {
         username: username,
         email: user.email,
@@ -195,7 +195,7 @@ const HandleUsernameSubmit = async (user: GoogleUser, username: string) => {
     }
 };
 
-const ValidateUserToken = async (token: string | null, username: string | null): Promise<User> => {
+const validateUserToken = async (token: string | null, username: string | null): Promise<User> => {
     try {
         const request = {
             username,
@@ -238,7 +238,7 @@ const ValidateUserToken = async (token: string | null, username: string | null):
     }
 }
 
-const Logout = async (token: string | null, username: string | null) => {
+const logout = async (token: string | null, username: string | null) => {
     const request = {
         username,
         token
@@ -327,4 +327,4 @@ const arrayBufferToBase64 = (buffer: ArrayBuffer): string => {
     return window.btoa(binaryString);
 };
 
-export { GetPublicKey, RegisterUser, Login, ValidateUserToken, Logout, HandleGoogleLogin, HandleUsernameSubmit };
+export { getPublicKey, registerUser, login, validateUserToken, logout, loginWithGoogle, submitUsername };

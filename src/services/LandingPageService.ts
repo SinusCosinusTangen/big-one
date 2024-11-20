@@ -4,11 +4,11 @@ import { db } from '../services/Firebase';
 
 const API_URL = process.env.REACT_APP_MIDDLEWARE_API_URL + '/Project';
 
-const GetProjectList = async () => {
+const getProjectList = async () => {
     try {
-        const appState = await CheckMiddlewareStatus();
-        if (appState == 'OFFLINE') {
-            return await GetProjectListFromFirestore();
+        const appState = await checkMiddlewareStatus();
+        if (appState === 'OFFLINE') {
+            return await getProjectListFromFirestore();
         }
 
         const response = await fetch(`${API_URL}`, {
@@ -19,22 +19,22 @@ const GetProjectList = async () => {
         });
 
         if (!response.ok) {
-            return await GetProjectListFromFirestore();
+            return await getProjectListFromFirestore();
         }
 
         const jsonResponse = await response.json();
         return jsonResponse.data;
     } catch (error) {
         console.error(error);
-        return await GetProjectListFromFirestore();;
+        return await getProjectListFromFirestore();;
     }
 };
 
-const GetProject = async (id: string) => {
+const getProject = async (id: string) => {
     try {
-        const appState = await CheckMiddlewareStatus();
-        if (appState == 'OFFLINE') {
-            return await GetProjectFromFirestore(id);
+        const appState = await checkMiddlewareStatus();
+        if (appState === 'OFFLINE') {
+            return await getProjectFromFirestore(id);
         }
 
         const response = await fetch(`${API_URL}/${id}`, {
@@ -45,18 +45,18 @@ const GetProject = async (id: string) => {
         });
 
         if (!response.ok) {
-            return await GetProjectFromFirestore(id);
+            return await getProjectFromFirestore(id);
         }
 
         const jsonResponse = await response.json();
         return jsonResponse.data;
     } catch (error) {
         console.error(error);
-        return await GetProjectFromFirestore(id);
+        return await getProjectFromFirestore(id);
     }
 };
 
-const AddProject = async (projectName: string, projectDescription: string, techStacks: TechStackRequest[], projectLink: string) => {
+const addProject = async (projectName: string, projectDescription: string, techStacks: TechStackRequest[], projectLink: string) => {
     try {
 
         const request = {
@@ -86,7 +86,7 @@ const AddProject = async (projectName: string, projectDescription: string, techS
     }
 }
 
-const UpdateProject = async (projectId: string, projectName: string, projectDescription: string, techStacks: TechStackRequest[], projectLink: string) => {
+const updateProject = async (projectId: string, projectName: string, projectDescription: string, techStacks: TechStackRequest[], projectLink: string) => {
     try {
 
         const request = {
@@ -117,7 +117,7 @@ const UpdateProject = async (projectId: string, projectName: string, projectDesc
     }
 }
 
-const DeleteProject = async (id: string) => {
+const deleteProject = async (id: string) => {
     try {
         const response = await fetch(`${API_URL}/${id}`, {
             method: 'DELETE',
@@ -147,10 +147,10 @@ const deleteProjectsFromFirestore = async () => {
     await Promise.all(deletePromises);
 };
 
-const LoadProjectToFirestore = async () => {
+const loadProjectToFirestore = async () => {
     try {
         await deleteProjectsFromFirestore();
-        const projects = await GetProjectList();
+        const projects = await getProjectList();
         for (const project of projects) {
             await addDoc(collection(db, "projects"), project);
         }
@@ -159,7 +159,7 @@ const LoadProjectToFirestore = async () => {
     }
 };
 
-const GetProjectListFromFirestore = async () => {
+const getProjectListFromFirestore = async () => {
     try {
         const querySnapshot = await getDocs(collection(db, 'projects'));
         const projectList = querySnapshot.docs.map(doc => ({
@@ -172,7 +172,7 @@ const GetProjectListFromFirestore = async () => {
     }
 };
 
-const GetProjectFromFirestore = async (id: string) => {
+const getProjectFromFirestore = async (id: string) => {
     try {
         const projectsRef = collection(db, 'projects');
 
@@ -193,7 +193,7 @@ const GetProjectFromFirestore = async (id: string) => {
     }
 };
 
-const CheckMiddlewareStatus = async () => {
+const checkMiddlewareStatus = async () => {
     const docRef = doc(db, 'appState', 'middleware');
     const docSnapshot = await getDoc(docRef);
 
@@ -206,4 +206,26 @@ const CheckMiddlewareStatus = async () => {
     return 'OFFLINE';
 }
 
-export { GetProjectList, GetProject, AddProject, UpdateProject, DeleteProject, LoadProjectToFirestore, CheckMiddlewareStatus };
+const getLinkUrl = async () => {
+    const docRef = doc(db, 'link', 'link');
+    const docSnapshot = await getDoc(docRef);
+
+    if (docSnapshot.exists()) {
+        const data = docSnapshot.data();
+        return {
+            github: data.github,
+            gitlab: data.gitlab,
+            linkedin: data.linkedin,
+            cv: data.cv
+        }
+    }
+
+    return {
+        github: process.env.REACT_APP_GITHUB_URL,
+        gitlab: process.env.REACT_APP_GITLAB_URL,
+        linkedin: process.env.REACT_APP_LINKEDIN_URL,
+        cv: process.env.REACT_APP_CV_URL
+    };
+}
+
+export { getProjectList, getProject, addProject, updateProject, deleteProject, loadProjectToFirestore, checkMiddlewareStatus, getLinkUrl };

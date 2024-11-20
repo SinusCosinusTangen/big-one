@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
-import { AddProject, UpdateProject } from '../services/LandingPageService';
+import { addProject, updateProject, getProject } from '../services/LandingPageService';
 import { TechStackRequest } from '../models/TechStack';
-import * as service from '../services/LandingPageService'
 
 interface ProjectCardProps {
     id?: string;
@@ -21,7 +20,7 @@ const AddProjectForm: React.FC<ProjectCardProps> = ({ id }) => {
             if (id) {
                 try {
                     setLoading(true);
-                    const projectDetail = await service.GetProject(projectId);
+                    const projectDetail = await getProject(projectId);
                     if (projectDetail) {
                         setProjectName(projectDetail["projectName"]);
                         setProjectDescription(projectDetail["projectDescriptionLong"]);
@@ -63,13 +62,13 @@ const AddProjectForm: React.FC<ProjectCardProps> = ({ id }) => {
         setTechStacks((prevStacks) => prevStacks.filter(ts => ts.name !== techStackToRemove));
     };
 
-    const addProject = async () => {
-        await AddProject(projectName, projectDescription, techStacks, projectLink);
+    const handleAddProject = async () => {
+        await addProject(projectName, projectDescription, techStacks, projectLink);
     };
 
-    const updateProject = async () => {
+    const handleUpdateProject = async () => {
         if (id)
-            await UpdateProject(id, projectName, projectDescription, techStacks, projectLink);
+            await updateProject(id, projectName, projectDescription, techStacks, projectLink);
     }
 
     if (loading) return <div>Loading...</div>;
@@ -78,7 +77,7 @@ const AddProjectForm: React.FC<ProjectCardProps> = ({ id }) => {
     return (
         <form className="max-w-full md:max-w-lg mx-auto p-4 md:p-6"
             onSubmit={(e) => handleTechStacks(e)}
-            onKeyDown={(e) => { if (e.key == 'Enter') e.preventDefault() }}
+            onKeyDown={(e) => { if (e.key === 'Enter') e.preventDefault() }}
         >
             <p className="mt-2 text-lg">Project Name</p>
             <input value={projectName} type="text" className={inputClass} onChange={(e) => setProjectName(e.target.value)} required />
@@ -124,7 +123,7 @@ const AddProjectForm: React.FC<ProjectCardProps> = ({ id }) => {
                            focus:ring focus:ring-sky-300
                            active:bg-sky-600 active:scale-95 transition-transform duration-200"
                 type="button"
-                onClick={id ? updateProject : addProject}
+                onClick={id ? handleUpdateProject : handleAddProject}
             >
                 {id && (<span>Edit {projectName}</span>)}
                 {!id && (<span>Add {projectName}</span>)}

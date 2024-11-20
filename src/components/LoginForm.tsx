@@ -3,7 +3,7 @@ import { Icon } from 'react-icons-kit';
 import { eyeOff } from 'react-icons-kit/feather/eyeOff';
 import { eye } from 'react-icons-kit/feather/eye';
 import google from '../asset/image/7123025_logo_google_g_icon.svg';
-import { Login, HandleGoogleLogin, HandleUsernameSubmit } from '../services/AuthService';
+import { login, loginWithGoogle, submitUsername } from '../services/AuthService';
 import { signInWithPopup, GoogleAuthProvider, User } from "firebase/auth";
 import { auth } from '../services/Firebase';
 import { USERNAME_EMAIL } from '../constant/Value';
@@ -34,7 +34,7 @@ const LoginForm = () => {
 
     const handleLogin = async () => {
         try {
-            const result = await Login(usernameEmail, password, USERNAME_EMAIL);
+            const result = await login(usernameEmail, password, USERNAME_EMAIL);
 
             if (result?.error) {
                 setError("Username not found or password is incorrect");
@@ -51,7 +51,7 @@ const LoginForm = () => {
         const provider = new GoogleAuthProvider();
         signInWithPopup(auth, provider)
             .then(async (result) => {
-                var res = await HandleGoogleLogin(result);
+                var res = await loginWithGoogle(result);
                 if (!res?.isExists) {
                     setShowUsernameForm(true);
                 } else if (res?.isExists && res?.loggedIn) {
@@ -66,7 +66,7 @@ const LoginForm = () => {
 
     const handleUsernameSubmit = async () => {
         if (user) {
-            await HandleUsernameSubmit(user, username);
+            await submitUsername(user, username);
         }
     };
 
@@ -94,7 +94,6 @@ const LoginForm = () => {
                             <Icon icon={icon} size="15" />
                         </span>
                     </div>
-                    <a href="#" className="text-blue-500 hover:underline">Forgot password?</a>
 
                     <button
                         className="mt-6 block w-full h-10 px-3 py-2 bg-sky-500 text-white text-sm font-semibold rounded-md shadow-sm 
@@ -133,7 +132,7 @@ const LoginForm = () => {
                     <button
                         className="flex mt-2 items-center justify-center w-full h-10 px-3 py-1 bg-white border border-sky-500 rounded-md text-sky-500 text-sm shadow-sm 
                                font-semibold hover:bg-sky-500 hover:text-white active:bg-sky-600 focus:ring focus:ring-sky-300"
-                        onClick={handleUsernameSubmit}
+                        onClick={() => handleUsernameSubmit()}
                     >
                         Submit Username
                     </button>
