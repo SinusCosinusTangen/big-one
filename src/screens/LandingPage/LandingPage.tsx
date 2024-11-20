@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import bg from '../../asset/image/bg-img.jpeg'
 import ProjectDetailCard from "../../components/ProjectDetailCard";
-import { ValidateUserToken, Logout } from "../../services/AuthService";
+import { validateUserToken, logout } from "../../services/AuthService";
 import AddProjectForm from "../../components/AddProjectForm";
 import Project from "../../models/Project";
 import Navbar from "../../components/Navbar";
 import ScrollButton from "../../components/ScrollButton";
-import { GetProjectList } from "../../services/LandingPageService";
+import { getLinkUrl, getProjectList } from "../../services/LandingPageService";
 import MessagePage from "../Message/MessagePage";
 import { github, gitlab, linkedin } from "react-icons-kit/fa";
 import Icon from "react-icons-kit";
@@ -35,11 +35,22 @@ const LandingPage = () => {
         return storedUsername ? ` ${storedUsername}` : "";
     });
     const [showMessagePage, setShowMessagePage] = useState(false);
+    const [link, setLink] = useState<{ linkedin: string, github: string, gitlab: string, cv: string }>({
+        linkedin: "",
+        github: "",
+        gitlab: "",
+        cv: ""
+    });
 
     const fetchProjects = async () => {
-        const projectList = await GetProjectList();
+        const projectList = await getProjectList();
         setProjects(projectList);
     };
+
+    const fetchLink = async () => {
+        const linkUrl = await getLinkUrl();
+        setLink(linkUrl);
+    }
 
     const makeGreeting = () => {
         const morning = `Good morning${username},`
@@ -58,7 +69,7 @@ const LandingPage = () => {
     }
 
     const validateUser = () => {
-        ValidateUserToken(localStorage.getItem("Token"), localStorage.getItem("Username")).then((res) => {
+        validateUserToken(localStorage.getItem("Token"), localStorage.getItem("Username")).then((res) => {
             setRole(res.role);
 
             if (res.role === "ADMINISTRATOR") {
@@ -71,10 +82,11 @@ const LandingPage = () => {
         fetchProjects();
         makeGreeting();
         validateUser();
+        fetchLink();
     }, [username, role]);
 
     const handleLogout = async () => {
-        await Logout(localStorage.getItem("Token"), localStorage.getItem("Username"));
+        await logout(localStorage.getItem("Token"), localStorage.getItem("Username"));
         setRole("");
     }
 
@@ -136,11 +148,11 @@ const LandingPage = () => {
                 <div className="pt-16 pb-12 sm:pt-20 text-center">
                     <h2 className="text-white text-2xl sm:text-3xl md:text-4xl mt-4">{greeting}</h2>
                     <h1 className="block text-white text-6xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold">
-                        Welcome to <a className="hover:underline hover:font-bold active:font-semibold" href={cvUrl} target="_blank">James's</a> Portfolio
+                        Welcome to <a className="hover:underline hover:font-bold active:font-semibold" href={link.cv} target="_blank">James's</a> Portfolio
                     </h1>
                     <div className="flex justify-center mt-2 gap-2">
                         <a
-                            href="https://github.com/SinusCosinusTangen"
+                            href={link.github}
                             target="_blank"
                             rel="noopener noreferrer"
                             className={hrefButton}
@@ -151,7 +163,7 @@ const LandingPage = () => {
                             </span>
                         </a>
                         <a
-                            href="https://gitlab.com/SinusCosinusTangen"
+                            href={link.gitlab}
                             target="_blank"
                             rel="noopener noreferrer"
                             className={hrefButton}
@@ -162,7 +174,7 @@ const LandingPage = () => {
                             </span>
                         </a>
                         <a
-                            href="https://linkedin.com/in/james-frederix-rolianto/"
+                            href={link.linkedin}
                             target="_blank"
                             rel="noopener noreferrer"
                             className={hrefButton}

@@ -14,7 +14,7 @@ const MessageBubble: React.FC<MessageProps> = ({ message, currentUser }) => {
     const formattedDateTime = date.toLocaleString();
     var formattedTime = `${date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })}`;
 
-    if (date.getDate() + date.getMonth() != today.getDate() + today.getMonth()) {
+    if (date.getDate() + date.getMonth() !== today.getDate() + today.getMonth()) {
         formattedTime = `${date.toLocaleDateString('en-US', { day: '2-digit', month: '2-digit' }) + ' ' + date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })}`;
     }
 

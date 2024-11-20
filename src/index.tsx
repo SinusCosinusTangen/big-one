@@ -3,13 +3,12 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import './index.css';
 import reportWebVitals from './reportWebVitals';
-import { LandingPage } from './screens/LandingPage';
+import LandingPage from './screens/LandingPage/LandingPage';
 import AuthPage from './screens/Auth/AuthPage';
 
 const root = ReactDOM.createRoot(
     document.getElementById('root') as HTMLElement
 );
-document.title = "BigOne";
 root.render(
     <React.StrictMode>
         <Router>

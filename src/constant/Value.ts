@@ -8,7 +8,7 @@ export const OFFLINE = 'OFFLINE';
 
 export const USER_ADMIN: User = {
     id: '59c9b300-51b4-4c0b-9810-c7c2553d489e',
-    username: 'Admin',
+    username: 'James',
     email: '',
     role: '',
     token: ''

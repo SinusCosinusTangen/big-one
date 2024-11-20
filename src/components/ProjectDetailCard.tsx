@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { GetProject } from "../services/LandingPageService";
 import Project from "../models/Project";
-import { DeleteProject } from "../services/LandingPageService";
-import { ValidateUserToken } from "../services/AuthService";
 import Icon from "react-icons-kit";
 import { pencil } from "react-icons-kit/fa/pencil"
 import { trash } from "react-icons-kit/fa/trash"
 import AddProjectForm from "./AddProjectForm";
+import { deleteProject, getProject } from "../services/LandingPageService";
+import { validateUserToken } from "../services/AuthService";
 
 interface ProjectCardProps {
     id: string;
@@ -23,7 +22,7 @@ const ProjectDetailCard: React.FC<ProjectCardProps> = ({ id }) => {
     useEffect(() => {
         const fetchProjects = async () => {
             try {
-                const projectDetail = await GetProject(id);
+                const projectDetail = await getProject(id);
                 setProject(projectDetail);
             } catch (error) {
                 console.error(error);
@@ -34,7 +33,7 @@ const ProjectDetailCard: React.FC<ProjectCardProps> = ({ id }) => {
         };
 
         const validateUser = () => {
-            ValidateUserToken(localStorage.getItem("Token"), localStorage.getItem("Username")).then((res) => {
+            validateUserToken(localStorage.getItem("Token"), localStorage.getItem("Username")).then((res) => {
                 setRole(res.role);
                 if (res.role === "ADMINISTRATOR") {
                     setIsAdmin(true);
@@ -50,7 +49,7 @@ const ProjectDetailCard: React.FC<ProjectCardProps> = ({ id }) => {
 
     const handleDeleteProject = async (id: string | undefined) => {
         if (id && isAdmin) {
-            await DeleteProject(id);
+            await deleteProject(id);
         }
     }
 

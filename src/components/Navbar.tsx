@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ADMIN } from '../constant/Value';
-import { LoadProjectToFirestore } from '../services/LandingPageService';
+import { getLinkUrl, loadProjectToFirestore } from '../services/LandingPageService';
 
 interface NavbarProps {
     role: string;
@@ -10,9 +10,13 @@ interface NavbarProps {
 }
 
 const Navbar: React.FC<NavbarProps> = ({ role, handleLogout, active, toggleMessageOverlay }) => {
-    const cvUrl = process.env.REACT_APP_CV_URL;
     const [scrolled, setScrolled] = useState(0);
-    const [activeButton, setActiveButton] = useState(active);
+    const [cvUrl, setCvUrl] = useState("");
+
+    const fetchLink = async () => {
+        const linkUrl = await getLinkUrl();
+        setCvUrl(linkUrl.cv);
+    }
 
     useEffect(() => {
         const handleScroll = () => {
@@ -25,6 +29,7 @@ const Navbar: React.FC<NavbarProps> = ({ role, handleLogout, active, toggleMessa
             }
         };
 
+        fetchLink();
         window.addEventListener('scroll', handleScroll);
         return () => {
             window.removeEventListener('scroll', handleScroll);
@@ -32,10 +37,10 @@ const Navbar: React.FC<NavbarProps> = ({ role, handleLogout, active, toggleMessa
     }, []);
 
     const handleLoadToFirestore = async () => {
-        await LoadProjectToFirestore();
+        await loadProjectToFirestore();
     }
 
-    const navbarClass = `fixed w-full px-4 z-50 ${scrolled == 1 ? 'bg-slate-800/25' : scrolled == 2 ? 'bg-slate-800/75' : 'bg-transparent'} flex justify-between transition-transform duration-200`;
+    const navbarClass = `fixed w-full px-4 z-50 ${scrolled === 1 ? 'bg-slate-800/25' : scrolled === 2 ? 'bg-slate-800/75' : 'bg-transparent'} flex justify-between transition-transform duration-200`;
     const buttonClass = `text-center text-slate-300/50 p-2 py-2
                         hover:border-b-2 hover:border-white hover:text-white
                         active:bg-gradient-to-r active:from-slate-500 active:to-slate-800 active:scale-100
@@ -50,18 +55,18 @@ const Navbar: React.FC<NavbarProps> = ({ role, handleLogout, active, toggleMessa
 
             {/* Right section */}
             <div className="flex space-x-4">
-                {role == ADMIN ? (
+                {role === ADMIN ? (
                     <button className={buttonClass} onClick={handleLoadToFirestore}>
                         Load Data
                     </button>
                 ) : (<div></div>)}
-                <a className={buttonClass} href={cvUrl} target="_blank">
+                <a className={buttonClass} href={cvUrl} target="_blank" rel="noreferrer">
                     James's CV
                 </a>
                 {role ? (
                     <div className="flex space-x-4">
                         <button
-                            className={`${buttonClass}  ${activeButton == "message" ? " border-b-2 border-white text-white" : ""}`}
+                            className={`${buttonClass}  ${active === "message" ? " border-b-2 border-white text-white" : ""}`}
                             onClick={toggleMessageOverlay}>
                             Message
                         </button>
